@@ -14,6 +14,8 @@ Or copy-paste this prompt into Cowork to install manually:
 
 > Install the gstack plugin: download `https://github.com/garrytan/gstack` and add the `cowork/` directory as a local plugin.
 
+**New to gstack?** See the [Step-by-Step User Guide](GUIDE.md) for a complete walkthrough — from installation through connecting your tools and running every skill.
+
 ## Commands
 
 Explicit workflows you invoke with a slash command:
