@@ -4,6 +4,10 @@
       "type": "http",
       "url": "https://api.github.com/mcp"
     },
+    "gitlab": {
+      "type": "http",
+      "url": "https://gitlab.com/api/mcp"
+    },
     "linear": {
       "type": "http",
       "url": "https://mcp.linear.app/mcp"

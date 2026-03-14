@@ -35,6 +35,7 @@ If no specific file or URL is provided, ask what to review.
 │  SUPERCHARGED (when GitHub is connected)                        │
 │  + Pull PR diff automatically from URL                          │
 │  + Read current branch vs main without manual paste             │
+│  + Read Greptile bot comments, classify, and triage             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -141,6 +142,50 @@ Be terse. For each issue: one line describing the problem, one line with the fix
 - **If only non-critical issues found:** Output findings. No further action needed.
 
 - **If no issues found:** Output `Pre-Landing Review: No issues found.`
+
+## Step 4: Greptile Review
+
+**If GitHub is not connected or no PR URL was provided:** Skip this step entirely.
+
+**If GitHub is connected and a PR was provided:**
+
+1. **Fetch Greptile comments:** Using the GitHub connection, read both line-level review comments and top-level comments on the PR, filtering for comments posted by `greptile-apps[bot]`.
+
+   **If no Greptile comments are found:** Output `Greptile Review: No comments.` and stop.
+
+2. **Check suppressions:** Read `~/.gstack/greptile-history.md` if it exists. Each line has the format:
+   ```
+   <YYYY-MM-DD> | <owner/repo> | <type> | <file-pattern> | <category>
+   ```
+   Skip any Greptile comment that matches an entry where `type == fp`, the repo matches the current repo, the file pattern matches the comment's file path, and the category matches the issue type. If the file doesn't exist or has unparseable lines, skip those lines and continue.
+
+3. **Classify each non-suppressed comment** by reading the relevant file at the indicated path:line (±10 lines of context) and cross-referencing against the full diff:
+   - **VALID** — a real bug, race condition, security issue, or correctness problem in the current code
+   - **ALREADY-FIXED** — a real issue that was addressed in a subsequent commit on the branch
+   - **FALSE-POSITIVE** — misunderstands the code, flags something handled elsewhere, or is stylistic noise
+
+4. **Output the Greptile Review section:**
+   ```
+   ## Greptile Review: N comments (X valid, Y fixed, Z false positive)
+   - [VALID] file:line — one-line summary — <link>
+   - [FIXED] file:line — one-line summary — <link>
+   - [FALSE POSITIVE] file:line — one-line summary — <link>
+   ```
+
+5. **For each VALID comment:** Ask separately:
+   - The comment: file:line (or `[top-level]`) + description + permalink
+   - Your recommended fix
+   - Options: A) Fix it now, B) Acknowledge, C) False positive — skip
+   - If user chooses C: save to `~/.gstack/greptile-history.md`:
+     ```
+     <YYYY-MM-DD> | <owner/repo> | fp | <file-pattern> | <category>
+     ```
+     (`<file-pattern>` is the comment's file path — use an exact path like `src/utils/parser.ts` or a glob like `src/utils/*.ts` for broader suppression. Categories: `race-condition`, `null-check`, `error-handling`, `style`, `type-safety`, `security`, `performance`, `correctness`, `other`)
+
+6. **For each FALSE-POSITIVE comment:** Ask:
+   - Show the comment (file:line or `[top-level]`) + description + permalink + why it's a false positive
+   - Options: A) Confirm false positive (save to history), B) Fix it anyway, C) Ignore
+   - If user chooses A: save to `~/.gstack/greptile-history.md` (same format, type: `fp`). Ensure `mkdir -p ~/.gstack` before writing.
 
 ## Important Rules
 

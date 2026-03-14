@@ -24,6 +24,7 @@ Run from the feature branch you want to ship.
 - Merge conflicts that can't be auto-resolved (stop, show conflicts)
 - Test failures (stop, show failures)
 - Pre-landing review finds CRITICAL issues and user chooses to fix
+- Greptile VALID issues requiring user decision
 - MINOR or MAJOR version bump needed (ask once — see Step 4)
 
 ## Never stop for
@@ -92,6 +93,52 @@ Review the diff for structural issues that tests don't catch.
    - If user chose A on any issue: apply fixes, commit only the fixed files, **STOP** and tell user to run `/ship` again.
    - If user chose only B or C: continue.
 6. **If no critical issues:** Output findings and continue.
+
+---
+
+## Step 3.75: Greptile Review (if GitHub connected)
+
+**If GitHub is not connected or no PR exists yet:** Skip this step silently and continue to Step 4.
+
+**If GitHub is connected and a PR exists:**
+
+1. **Fetch Greptile comments:** Using the GitHub connection, read both line-level review comments and top-level comments on the PR, filtering for comments posted by `greptile-apps[bot]`.
+
+   **If no Greptile comments found:** Note `Greptile: No comments.` and continue to Step 4.
+
+2. **Check suppressions:** Read `~/.gstack/greptile-history.md` if it exists. Each line has the format:
+   ```
+   <YYYY-MM-DD> | <owner/repo> | <type> | <file-pattern> | <category>
+   ```
+   Skip any comment matching a known false positive (`type == fp`) for the current repo and file pattern.
+
+3. **Classify each non-suppressed comment** (read file at path:line ±10 lines, cross-reference against full diff):
+   - **VALID** — a real bug or correctness problem in the current code
+   - **ALREADY-FIXED** — a real issue addressed in a subsequent commit on the branch; identify the fixing commit SHA
+   - **FALSE-POSITIVE** — misunderstands the code or is stylistic noise
+
+4. Output: `+ N Greptile comments (X valid, Y fixed, Z FP)`
+
+5. **ALREADY-FIXED comments:** Reply automatically using the GitHub connection:
+   - Reply text: `"Good catch — already fixed in <commit-sha>."`
+   - Save to `~/.gstack/greptile-history.md` (type: `already-fixed`). Ensure `mkdir -p ~/.gstack` first.
+
+6. **FALSE-POSITIVE comments:** Reply automatically using the GitHub connection:
+   - Reply text: a concise explanation of why the comment is incorrect
+   - Save to `~/.gstack/greptile-history.md` (type: `fp`)
+
+7. **VALID comments:** Ask the user for each one:
+   - The comment: file:line (or `[top-level]`) + description + permalink
+   - Your recommended fix
+   - Options: A) Fix it now, B) Acknowledge and ship anyway, C) It's a false positive
+   - If user chooses A: apply the fix, commit the fixed files (`git add <fixed-files> && git commit -m "fix: address Greptile review — <brief description>"`), reply `"Fixed in <commit-sha>."`, save to history (type: `fix`).
+   - If user chooses C: reply explaining the false positive, save to history (type: `fp`).
+
+8. **If any VALID fixes were applied:** Re-run tests (Step 3) before continuing to Step 4.
+
+Save Greptile results — they go into the PR body in Step 8.
+
+(Categories for history file: `race-condition`, `null-check`, `error-handling`, `style`, `type-safety`, `security`, `performance`, `correctness`, `other`)
 
 ---
 
@@ -170,6 +217,11 @@ Use GitHub to create a pull request:
 
 ## Pre-Landing Review
 <findings from Step 3.5, or "No issues found.">
+
+## Greptile Review
+<If Greptile comments were found in Step 3.75: bullet list with [FIXED] / [FALSE POSITIVE] / [ALREADY-FIXED] / [VALID] tag + one-line summary per comment>
+<If no Greptile comments found: "No Greptile comments.">
+<If GitHub was not connected during Step 3.75: omit this section entirely>
 
 ## Test plan
 - [x] All tests pass (N total, 0 failures)
