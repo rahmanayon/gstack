@@ -125,7 +125,7 @@ Review the diff for structural issues that tests don't catch.
 
 6. **FALSE-POSITIVE comments:** Reply automatically using the GitHub connection:
    - Reply text: a concise explanation of why the comment is incorrect
-   - Save to `~/.gstack/greptile-history.md` (type: `fp`)
+   - Save to `~/.gstack/greptile-history.md` (type: `fp`). Ensure `mkdir -p ~/.gstack` first.
 
 7. **VALID comments:** Ask the user for each one:
    - The comment: file:line (or `[top-level]`) + description + permalink

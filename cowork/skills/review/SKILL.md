@@ -157,7 +157,13 @@ Be terse. For each issue: one line describing the problem, one line with the fix
    ```
    <YYYY-MM-DD> | <owner/repo> | <type> | <file-pattern> | <category>
    ```
-   Skip any Greptile comment that matches an entry where `type == fp`, the repo matches the current repo, the file pattern matches the comment's file path, and the category matches the issue type. If the file doesn't exist or has unparseable lines, skip those lines and continue.
+   Skip any Greptile comment that matches **all four** of the following criteria in a history entry:
+   - `type == fp` (only suppress known false positives, not previously fixed real issues)
+   - `repo` matches the current repository (`owner/repo`)
+   - `file-pattern` matches the comment's file path (exact path or glob)
+   - `category` matches the issue type in the comment
+
+   If the file doesn't exist or has unparseable lines, skip those lines and continue.
 
 3. **Classify each non-suppressed comment** by reading the relevant file at the indicated path:line (±10 lines of context) and cross-referencing against the full diff:
    - **VALID** — a real bug, race condition, security issue, or correctness problem in the current code
