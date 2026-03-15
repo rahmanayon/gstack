@@ -129,8 +129,8 @@ Every command works without integrations:
 |---------|------------|-------------------|
 | `/plan-ceo-review` | Describe your idea | Knowledge base (docs, prior ADRs) |
 | `/plan-eng-review` | Describe your plan | Knowledge base, source control |
-| `/review` | Paste diff or PR URL | GitHub (pull PR automatically) |
-| `/ship` | Describe your branch | GitHub (create PR, post comments) |
+| `/review` | Paste diff or PR URL | GitHub (pull PR automatically), Greptile (triage bot comments) |
+| `/ship` | Describe your branch | GitHub (create PR, post comments), Greptile (triage bot comments) |
 | `/browse` | Provide URL directly | — (browser runs locally) |
 | `/qa` | Provide URL | GitHub (analyze PR diff), browser |
 | `/retro` | Describe your week | GitHub (commit history, PRs) |
@@ -142,6 +142,7 @@ Every command works without integrations:
 | Category | Examples | What It Enables |
 |---|---|---|
 | **Source control** | GitHub | PR diffs, commit history, create PRs, post comments |
+| **Code intelligence** | Greptile | AI code review on every PR; `/review` and `/ship` triage bot comments (VALID / ALREADY-FIXED / FALSE-POSITIVE) |
 | **Project tracker** | Linear | Link review findings to tickets |
 | **Knowledge base** | Notion | Prior ADRs, runbooks, architecture docs |
 | **Chat** | Slack | Notify team of retro results, share QA reports |

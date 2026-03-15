@@ -366,19 +366,65 @@ Every skill works standalone. These connections make them dramatically more powe
 
 | Connector | Enables |
 |---|---|
-| **GitHub** | `/review` pulls PR diffs automatically • `/ship` creates PRs and resolves comments • `/retro` reads full commit history and PR activity • `/qa` reads the PR diff for diff-aware testing |
+| **GitHub** | `/review` pulls PR diffs automatically • `/ship` creates PRs and resolves comments • `/retro` reads full commit history and PR activity • `/qa` reads the PR diff for diff-aware testing • `/review` and `/ship` triage Greptile bot comments |
 | **GitLab** | Same as GitHub for GitLab-hosted repositories |
+| **Greptile** | Direct code intelligence MCP — semantic code search and cross-file analysis for `/review` and `/ship` |
 | **Linear** | `/review` can link findings directly to Linear tickets • `/ship` can close related issues on merge |
 | **Notion** | `/plan-eng-review` reads prior ADRs, architecture docs, and runbooks • `/review` applies your team's documented coding standards |
 | **Slack** | `/retro` posts summaries to your team channel • `/qa` shares QA reports |
 
-### Greptile (Code Intelligence)
+### Greptile — Step-by-Step Setup
 
-If Greptile is configured in your environment, `/review` and `/ship` gain an additional analysis step:
-- Fetches AI-powered code findings from the Greptile API
-- Suppresses false positives already in history
-- Classifies findings as `VALID`, `ALREADY-FIXED`, or `FALSE-POSITIVE`
-- Auto-replies to false positives; prompts you only for valid issues
+Greptile gives `/review` and `/ship` a superpower: every PR is automatically reviewed by an AI bot (`greptile-apps[bot]`), and gstack triages those comments — classifying each as `VALID`, `ALREADY-FIXED`, or `FALSE-POSITIVE` and suppressing known noise.
+
+There are two parts to the setup:
+
+#### Part 1 — Install the Greptile GitHub App (required for bot triage)
+
+This is what makes Greptile post review comments on your PRs. It does **not** require a Greptile API key — just your GitHub connection.
+
+1. Go to **[app.greptile.com](https://app.greptile.com)** and sign in with GitHub.
+2. Click **Add Repository** and select every repo you want reviewed.
+3. Wait ~2–5 minutes for Greptile to index the codebase. You'll get an email when it's ready.
+4. From now on, every new PR in those repos will automatically get Greptile review comments.
+
+> **Verify:** Open any PR in the repo and look for a comment from `greptile-apps[bot]`. If you see one, the GitHub App is working.
+
+#### Part 2 — Connect the Greptile MCP (optional, for direct code intelligence)
+
+This unlocks semantic code search and cross-file analysis directly inside Cowork sessions.
+
+1. Go to **[app.greptile.com/settings/api](https://app.greptile.com/settings/api)** and copy your API key.
+2. In Cowork, open **Customize → Plugins → gstack → Connectors**.
+3. Find **Greptile** in the connectors list and toggle it on.
+4. Paste your Greptile API key when prompted.
+
+Cowork will connect to `https://api.greptile.com/mcp` using that key. Once connected, `/review` and `/ship` can query the Greptile codebase index directly — not just read bot comments.
+
+#### Part 3 — Verify the full integration
+
+1. Make sure your GitHub connection is active (Step 2 of this guide).
+2. Open a PR in a Greptile-enrolled repo and wait for the bot comment to appear.
+3. Run `/review <PR URL>` in Cowork.
+4. After the two-pass review, you should see:
+   ```
+   ## Greptile Review: N comments (X valid, Y fixed, Z false positive)
+   - [VALID] src/auth.ts:42 — Missing null check on user.email — <link>
+   - [FALSE POSITIVE] src/utils.ts:17 — Flagged unused import (already removed in this PR) — <link>
+   ```
+5. For each VALID comment, Claude asks: **A) Fix it now, B) Acknowledge, C) False positive — skip**.
+
+#### Part 4 — False positive suppression
+
+When you mark a comment as a false positive (option C), gstack saves it to `~/.gstack/greptile-history.md`:
+
+```
+2026-03-14 | myorg/myapp | fp | src/utils/*.ts | style
+```
+
+Future `/review` and `/ship` runs automatically skip any comment matching that entry. You only see real issues.
+
+To clear the suppression history: `rm ~/.gstack/greptile-history.md`
 
 ---
 
