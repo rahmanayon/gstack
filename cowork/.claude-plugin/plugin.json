@@ -1,0 +1,9 @@
+{
+  "name": "gstack",
+  "version": "1.1.0",
+  "description": "Opinionated engineering workflow skills for Claude Cowork — plan review (CEO mode + eng lead mode), paranoid code review, one-command shipping, headless browser QA testing, and team retrospectives. Eight specialists you can summon on demand.",
+  "author": {
+    "name": "Garry Tan",
+    "url": "https://github.com/rahmanayon/gstack"
+  }
+}

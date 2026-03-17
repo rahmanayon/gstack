@@ -2,7 +2,7 @@
 
 **gstack turns Claude Code from one generic assistant into a team of specialists you can summon on demand.**
 
-Twelve opinionated workflow skills for [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Plan review, design review, code review, one-command shipping, browser automation, QA testing, engineering retrospectives, and post-ship documentation — all as slash commands.
+Nine opinionated workflow skills for [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Plan review, code review, one-command shipping, browser automation, QA testing, engineering retrospectives, and multi-agent parallel engineering — all as slash commands.
 
 ### Without gstack
 
@@ -23,9 +23,8 @@ Twelve opinionated workflow skills for [Claude Code](https://docs.anthropic.com/
 | `/review` | Paranoid staff engineer | Find the bugs that pass CI but blow up in production. Triages Greptile review comments. |
 | `/ship` | Release engineer | Sync main, run tests, resolve Greptile reviews, push, open PR. For a ready branch, not for deciding what to build. |
 | `/browse` | QA engineer | Give the agent eyes. It logs in, clicks through your app, takes screenshots, catches breakage. Full QA pass in 60 seconds. |
-| `/qa` | QA + fix engineer | Test app, find bugs, fix them with atomic commits, re-verify. Before/after health scores and ship-readiness summary. Three tiers: Quick, Standard, Exhaustive. |
-| `/qa-only` | QA reporter | Report-only QA testing. Same methodology as /qa but never fixes anything. Use when you want a pure bug report without code changes. |
-| `/qa-design-review` | Designer + frontend engineer | Same design audit as /plan-design-review, then fixes what it finds. Atomic `style(design):` commits, before/after screenshots, CSS-safe self-regulation. |
+| `/qa` | QA lead | Systematic QA testing. On a feature branch, auto-analyzes your diff, identifies affected pages, and tests them. Also: full exploration, quick smoke test, regression mode. |
+| `/cowork` | Engineering orchestrator | Multi-agent parallel engineering. Split a feature build, run multi-lens review, or investigate a bug from 4 angles — all at once. |
 | `/setup-browser-cookies` | Session manager | Import cookies from your real browser (Comet, Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages without logging in manually. |
 | `/retro` | Engineering manager | Team-aware retro: your deep-dive + per-person praise and growth opportunities for every contributor. |
 | `/document-release` | Technical writer | Update README, ARCHITECTURE, CONTRIBUTING, and project docs to match what you just shipped. |
@@ -125,21 +124,23 @@ This is the setup I use. One person, ten parallel agents, each with the right co
 
 ## Install
 
+### For Claude Code
+
 **Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+. `/browse` compiles a native binary — works on macOS and Linux (x64 and arm64).
 
-### Step 1: Install on your machine
+#### Step 1: Install on your machine
 
 Open Claude Code and paste this. Claude will do the rest.
 
-> Install gstack: run `git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /plan-ceo-review, /plan-eng-review, /plan-design-review, /review, /ship, /browse, /qa, /qa-only, /qa-design-review, /setup-browser-cookies, /retro, /document-release. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack: run `git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /plan-ceo-review, /plan-eng-review, /review, /ship, /browse, /qa, /cowork, /setup-browser-cookies, /retro. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
-### Step 2: Add to your repo so teammates get it (optional)
+#### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run `cp -Rf ~/.claude/skills/gstack .claude/skills/gstack && rm -rf .claude/skills/gstack/.git && cd .claude/skills/gstack && ./setup` then add a "gstack" section to this project's CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /plan-ceo-review, /plan-eng-review, /plan-design-review, /review, /ship, /browse, /qa, /qa-only, /qa-design-review, /setup-browser-cookies, /retro, /document-release, and tells Claude that if gstack skills aren't working, run `cd .claude/skills/gstack && ./setup` to build the binary and register skills.
+> Add gstack to this project: run `cp -Rf ~/.claude/skills/gstack .claude/skills/gstack && rm -rf .claude/skills/gstack/.git && cd .claude/skills/gstack && ./setup` then add a "gstack" section to this project's CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /plan-ceo-review, /plan-eng-review, /review, /ship, /browse, /qa, /cowork, /setup-browser-cookies, /retro, and tells Claude that if gstack skills aren't working, run `cd .claude/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. The binary and node\_modules are gitignored — teammates just need to run `cd .claude/skills/gstack && ./setup` once to build (or `/browse` handles it automatically on first use).
 
-### What gets installed
+#### What gets installed
 
 - Skill files (Markdown prompts) in `~/.claude/skills/gstack/` (or `.claude/skills/gstack/` for project installs)
 - Symlinks at `~/.claude/skills/browse`, `~/.claude/skills/qa`, `~/.claude/skills/review`, etc. pointing into the gstack directory
@@ -148,6 +149,57 @@ Real files get committed to your repo (not a submodule), so `git clone` just wor
 - `/retro` saves JSON snapshots to `.context/retros/` in your project for trend tracking
 
 Everything lives inside `.claude/`. Nothing touches your PATH or runs in the background.
+
+---
+
+### For Claude Cowork
+
+gstack ships a ready-made [Cowork plugin](cowork/) with all eight skills adapted for the Cowork environment. The conversational skills (`/plan-ceo-review`, `/plan-eng-review`, `/review`, `/ship`, `/retro`) work immediately with no setup. The browser skills (`/browse`, `/qa`, `/setup-browser-cookies`) require the gstack binary as a one-time build.
+
+#### Step 1: Install the plugin
+
+Open Claude Cowork and paste this prompt:
+
+> Install the gstack plugin from GitHub: clone `https://github.com/garrytan/gstack` locally, then add the `cowork/` directory as a local plugin in Cowork (Customize → Add local plugin → select the `cowork/` folder). Once installed, tell me which skills are available.
+
+Or if you have the `claude` CLI:
+
+```bash
+claude plugins add garrytan/gstack/cowork
+```
+
+#### Step 2: Connect GitHub (recommended)
+
+In Cowork → Customize → Plugins → gstack → Connectors, connect GitHub. This enables:
+- `/review` to pull PR diffs automatically
+- `/ship` to create PRs via the GitHub API
+- `/retro` to pull commit history without running git commands
+
+#### Step 3: Set up the browser (optional)
+
+For `/browse`, `/qa`, and `/setup-browser-cookies`, run once in your terminal:
+
+```bash
+git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+cd ~/.claude/skills/gstack && ./setup
+```
+
+The browser skills will prompt you to do this automatically on first use.
+
+#### What's included in the Cowork plugin
+
+All eight gstack skills, adapted for Cowork:
+
+| Skill | Works without browser? | Works without GitHub? |
+|-------|----------------------|----------------------|
+| `/plan-ceo-review` | ✓ | ✓ |
+| `/plan-eng-review` | ✓ | ✓ |
+| `/review` | ✓ | ✓ (paste diff manually) |
+| `/ship` | ✓ | ✓ (uses `gh` CLI fallback) |
+| `/browse` | Requires binary | ✓ |
+| `/qa` | Requires binary | ✓ (paste URL) |
+| `/setup-browser-cookies` | Requires binary | ✓ |
+| `/retro` | ✓ | ✓ (describe your week) |
 
 ---
 
