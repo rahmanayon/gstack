@@ -7,12 +7,12 @@ Eight opinionated skills covering plan review, code review, one-command shipping
 ## Installation
 
 ```bash
-claude plugins add garrytan/gstack/cowork
+claude plugins add rahmanayon/gstack/cowork
 ```
 
 Or copy-paste this prompt into Cowork to install manually:
 
-> Install the gstack plugin: download `https://github.com/garrytan/gstack` and add the `cowork/` directory as a local plugin.
+> Install the gstack plugin: download `https://github.com/rahmanayon/gstack` and add the `cowork/` directory as a local plugin.
 
 ## Commands
 
@@ -111,7 +111,7 @@ Analyzes commit history for the time window. Team-aware: per-person praise and g
 `/browse`, `/qa`, and `/setup-browser-cookies` require the gstack browser binary:
 
 ```bash
-git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+git clone https://github.com/rahmanayon/gstack.git ~/.claude/skills/gstack
 cd ~/.claude/skills/gstack && ./setup
 ```
 
@@ -150,4 +150,4 @@ See [CONNECTORS.md](CONNECTORS.md) for the full list of supported integrations.
 
 Created by [Garry Tan](https://x.com/garrytan), President & CEO of [Y Combinator](https://www.ycombinator.com/).
 
-Source: [github.com/garrytan/gstack](https://github.com/garrytan/gstack)
+Source: [github.com/rahmanayon/gstack](https://github.com/rahmanayon/gstack)

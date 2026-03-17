@@ -24,7 +24,7 @@ Persistent headless Chromium. First call auto-starts (~3s), then ~100-200ms per 
 The `/browse` skill requires the gstack browser binary. This is a one-time build (~10 seconds):
 
 ```bash
-git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+git clone https://github.com/rahmanayon/gstack.git ~/.claude/skills/gstack
 cd ~/.claude/skills/gstack && ./setup
 ```
 
